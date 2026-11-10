@@ -1,0 +1,41 @@
+name: FreePhoto - unsigned iOS build
+on:
+  workflow_dispatch:
+    inputs:
+      free_allowance_confirmed:
+        description: 'Confirme franquia gratuita disponivel e bloqueio de gastos adicionais na conta'
+        required: true
+        type: boolean
+        default: false
+      target:
+        description: 'O simulador testa inicializacao; device somente compila sem assinatura'
+        required: true
+        type: choice
+        default: device
+        options:
+          - device
+          - simulator
+permissions:
+  contents: read
+concurrency:
+  group: freephoto-unsigned
+  cancel-in-progress: false
+jobs:
+  build:
+    if: ${{ inputs.free_allowance_confirmed }}
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build without signing
+        env:
+          FREEPHOTO_BUILD_TARGET: ${{ inputs.target }}
+        run: bash scripts/build-unsigned.sh "$FREEPHOTO_BUILD_TARGET"
+      - name: Collect build logs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: FreePhoto-${{ inputs.target }}-unsigned
+          path: build/artifacts/
+          if-no-files-found: warn
+          retention-days: 1
