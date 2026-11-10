@@ -1,0 +1,23 @@
+workflows:
+  freephoto-unsigned:
+    name: FreePhoto - verificar compilacao iOS sem assinatura
+    instance_type: mac_mini_m2
+    max_build_duration: 20
+    environment:
+      xcode: latest
+    scripts:
+      - name: Compilar para iPhone sem certificados
+        script: bash scripts/build-unsigned.sh device
+    artifacts:
+      - build/artifacts/*
+  freephoto-simulator:
+    name: FreePhoto - compilar e abrir no simulador
+    instance_type: mac_mini_m2
+    max_build_duration: 20
+    environment:
+      xcode: latest
+    scripts:
+      - name: Compilar para simulador e conferir inicializacao
+        script: bash scripts/build-unsigned.sh simulator
+    artifacts:
+      - build/artifacts/*
